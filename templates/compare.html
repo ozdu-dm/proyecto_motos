@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col-12 text-center mb-4">
+        <h2 class="display-6 fw-bold">Comparador de Motos</h2>
+        <p class="text-muted">Selecciona dos modelos para comparar sus especificaciones cara a cara.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center mb-5">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body bg-light">
+                <form method="POST" action="{{ url_for('compare') }}" class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold">Primera Moto</label>
+                        <select class="form-select" name="moto1" required>
+                            <option value="" disabled selected>Elige un modelo...</option>
+                            {% for moto in motos %}
+                                <option value="{{ moto.id }}">{{ moto.marca }} {{ moto.modelo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <span class="fs-4 fw-bold text-muted">VS</span>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold">Segunda Moto</label>
+                        <select class="form-select" name="moto2" required>
+                            <option value="" disabled selected>Elige un modelo...</option>
+                            {% for moto in motos %}
+                                <option value="{{ moto.id }}">{{ moto.marca }} {{ moto.modelo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg px-5">Comparar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if moto1 and moto2 and moto1.id != moto2.id %}
+<div class="row justify-content-center mt-4 mb-5">
+    <div class="col-md-5">
+        <div class="card shadow border-primary h-100">
+            <div class="card-header bg-primary text-white text-center">
+                <h4 class="mb-0">{{ moto1.marca }}</h4>
+            </div>
+            <img src="{{ moto1.imagen }}" class="card-img-top" alt="Moto 1" style="height: 250px; object-fit: cover;">
+            <div class="card-body text-center">
+                <h2 class="card-title">{{ moto1.modelo }}</h2>
+                <hr>
+                <div class="d-flex justify-content-between px-3 mt-4">
+                    <span class="fs-5 text-muted">Cilindrada:</span>
+                    <span class="fs-4 fw-bold">{{ moto1.cilindrada }} cc</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card shadow border-danger h-100">
+            <div class="card-header bg-danger text-white text-center">
+                <h4 class="mb-0">{{ moto2.marca }}</h4>
+            </div>
+            <img src="{{ moto2.imagen }}" class="card-img-top" alt="Moto 2" style="height: 250px; object-fit: cover;">
+            <div class="card-body text-center">
+                <h2 class="card-title">{{ moto2.modelo }}</h2>
+                <hr>
+                <div class="d-flex justify-content-between px-3 mt-4">
+                    <span class="fs-5 text-muted">Cilindrada:</span>
+                    <span class="fs-4 fw-bold">{{ moto2.cilindrada }} cc</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
