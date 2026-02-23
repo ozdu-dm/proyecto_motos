@@ -27,11 +27,27 @@ class Moto(db.Model):
     marca = db.Column(db.String(50), nullable=False)
     modelo = db.Column(db.String(50), nullable=False)
     cilindrada = db.Column(db.Integer, nullable=False)
-    imagen = db.Column(db.String(300), nullable=False) # Nuevo campo de imagen
+    imagen = db.Column(db.String(300), nullable=False)
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+# --- INICIALIZACIÓN DE LA BASE DE DATOS ---
+# Ahora esto se ejecutará siempre que arranque Flask, sin importar cómo lo inicies
+with app.app_context():
+    db.create_all() 
+    
+    if not Moto.query.first():
+        motos_ejemplo = [
+            Moto(marca='Yamaha', modelo='MT-07', cilindrada=689, imagen='https://images.unsplash.com/photo-1683041194051-53771dee2db7?q=80&w=1031&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
+            Moto(marca='Honda', modelo='CB650R', cilindrada=649, imagen='https://images.unsplash.com/photo-1722590398650-a5d226c3d904?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
+            Moto(marca='Kawasaki', modelo='Z900', cilindrada=948, imagen='https://images.unsplash.com/photo-1611241443333-bdcff35bc8cc?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
+            Moto(marca='Suzuki', modelo='SV650', cilindrada=645, imagen='https://images.unsplash.com/photo-1770653873831-4200a5de2ea0?q=80&w=685&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')
+        ]
+        db.session.bulk_save_objects(motos_ejemplo)
+        db.session.commit()
+        print("Motos de prueba con imágenes insertadas correctamente.")
 
 # --- RUTAS DE LA APLICACIÓN ---
 
@@ -104,19 +120,4 @@ def compare():
     return render_template('compare.html', motos=motos, moto1=moto1, moto2=moto2)
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all() 
-        
-        # Inserta motos de prueba si la tabla está vacía
-        if not Moto.query.first():
-            motos_ejemplo = [
-                Moto(marca='Yamaha', modelo='MT-07', cilindrada=689, imagen='https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800&q=80'),
-                Moto(marca='Honda', modelo='CB650R', cilindrada=649, imagen='https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&q=80'),
-                Moto(marca='Kawasaki', modelo='Z900', cilindrada=948, imagen='https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=800&q=80'),
-                Moto(marca='Suzuki', modelo='SV650', cilindrada=645, imagen='https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?w=800&q=80')
-            ]
-            db.session.bulk_save_objects(motos_ejemplo)
-            db.session.commit()
-            print("Motos de prueba con imágenes insertadas correctamente.")
-            
     app.run(debug=True)
