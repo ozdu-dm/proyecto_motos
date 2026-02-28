@@ -2,16 +2,15 @@ from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'clave_secreta_para_sesiones'
-# Conexión a tu XAMPP
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/nom_mail'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# Configuración de Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -29,15 +28,24 @@ class Moto(db.Model):
     cilindrada = db.Column(db.Integer, nullable=False)
     imagen = db.Column(db.String(300), nullable=False)
 
+# TERCER FORMULARIO: RESERVAS
+class Reserva(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    fecha = db.Column(db.Date, nullable=False)
+    telefono = db.Column(db.String(20), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    moto_id = db.Column(db.Integer, db.ForeignKey('moto.id'), nullable=False)
+    moto = db.relationship('Moto', backref=db.backref('reservas', lazy=True))
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
 # --- INICIALIZACIÓN DE LA BASE DE DATOS ---
-# Ahora esto se ejecutará siempre que arranque Flask, sin importar cómo lo inicies
 with app.app_context():
     db.create_all() 
     
+    # Si la tabla está vacía, mete las motos con tus links nuevos
     if not Moto.query.first():
         motos_ejemplo = [
             Moto(marca='Yamaha', modelo='MT-07', cilindrada=689, imagen='https://images.unsplash.com/photo-1683041194051-53771dee2db7?q=80&w=1031&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
@@ -47,7 +55,6 @@ with app.app_context():
         ]
         db.session.bulk_save_objects(motos_ejemplo)
         db.session.commit()
-        print("Motos de prueba con imágenes insertadas correctamente.")
 
 # --- RUTAS DE LA APLICACIÓN ---
 
@@ -104,20 +111,42 @@ def logout():
 @login_required
 def compare():
     motos = Moto.query.all()
-    moto1 = None
-    moto2 = None
+    moto1 = moto2 = None
+    if request.method == 'POST':
+        moto1_id, moto2_id = request.form.get('moto1'), request.form.get('moto2')
+        if moto1_id and moto2_id:
+            moto1, moto2 = Moto.query.get(moto1_id), Moto.query.get(moto2_id)
+            if moto1_id == moto2_id:
+                flash('Selecciona dos motos diferentes para comparar.')
+    return render_template('compare.html', motos=motos, moto1=moto1, moto2=moto2)
+
+# --- RUTAS DEL TERCER FORMULARIO (RESERVAS) ---
+
+@app.route('/reservar/<int:moto_id>', methods=['GET', 'POST'])
+@login_required
+def reservar(moto_id):
+    moto = Moto.query.get_or_404(moto_id)
     
     if request.method == 'POST':
-        moto1_id = request.form.get('moto1')
-        moto2_id = request.form.get('moto2')
+        fecha_str = request.form.get('fecha')
+        telefono = request.form.get('telefono')
         
-        if moto1_id and moto2_id:
-            moto1 = Moto.query.get(moto1_id)
-            moto2 = Moto.query.get(moto2_id)
-            if moto1_id == moto2_id:
-                flash('Por favor, selecciona dos motos diferentes para comparar.')
-                
-    return render_template('compare.html', motos=motos, moto1=moto1, moto2=moto2)
+        fecha_obj = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+        
+        nueva_reserva = Reserva(fecha=fecha_obj, telefono=telefono, user_id=current_user.id, moto_id=moto.id)
+        db.session.add(nueva_reserva)
+        db.session.commit()
+        
+        flash(f'¡Reserva confirmada! Te esperamos para probar la {moto.marca} {moto.modelo}.')
+        return redirect(url_for('mis_reservas'))
+        
+    return render_template('reservar.html', moto=moto)
+
+@app.route('/mis_reservas')
+@login_required
+def mis_reservas():
+    reservas = Reserva.query.filter_by(user_id=current_user.id).order_by(Reserva.fecha).all()
+    return render_template('mis_reservas.html', reservas=reservas)
 
 if __name__ == '__main__':
     app.run(debug=True)
