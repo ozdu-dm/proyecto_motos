@@ -9,7 +9,7 @@
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">🏍️ MotoClub</a>
+            <a class="navbar-brand" href="{{ url_for('index') }}">MotoClub</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -23,7 +23,7 @@
                     </li>
                     {% if current_user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('compare') }}">📊 Comparar Motos</a>
+                        <a class="nav-link" href="{{ url_for('compare') }}"> Comparar Motos</a>
                     </li>
                     {% endif %}
                 </ul>
