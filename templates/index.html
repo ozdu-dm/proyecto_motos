@@ -4,7 +4,7 @@
 <div class="px-4 py-5 my-5 text-center bg-white rounded-3 shadow-sm border">
     <h1 class="display-5 fw-bold text-dark">Bienvenido al MotoClub</h1>
     <div class="col-lg-6 mx-auto">
-      <p class="lead mb-4">La comunidad definitiva para los amantes de las dos ruedas. Regístrate para comparar y explorar máquinas.</p>
+      <p class="lead mb-4">Explora, compara y reserva una prueba de conducción de la moto de tus sueños.</p>
       {% if not current_user.is_authenticated %}
         <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
             <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 gap-3">Registrarse</a>
@@ -20,18 +20,19 @@
     {% for moto in motos %}
     <div class="col">
         <div class="card h-100 shadow-sm border-0">
-            <img src="{{ moto.imagen }}" class="card-img-top" alt="{{ moto.marca }} {{ moto.modelo }}" style="height: 200px; object-fit: cover;">
+            <img src="{{ moto.imagen }}" class="card-img-top" alt="{{ moto.marca }}" style="height: 200px; object-fit: cover;">
             <div class="card-body">
                 <h5 class="card-title fw-bold">{{ moto.marca }} {{ moto.modelo }}</h5>
                 <p class="card-text">
                     <span class="badge bg-secondary fs-6">{{ moto.cilindrada }} cc</span>
                 </p>
+                {% if current_user.is_authenticated %}
+                <div class="d-grid mt-3 border-top pt-3">
+                    <a href="{{ url_for('reservar', moto_id=moto.id) }}" class="btn btn-outline-dark">Probar esta moto</a>
+                </div>
+                {% endif %}
             </div>
         </div>
-    </div>
-    {% else %}
-    <div class="col-12 text-center mt-4">
-        <h5 class="text-muted">No hay motos registradas en la base de datos.</h5>
     </div>
     {% endfor %}
 </div>
