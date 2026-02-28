@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mt-4 mb-4">
+    <div class="col-12">
+        <h2 class="display-6 fw-bold border-bottom pb-2">📅 Mis Pruebas de Conducción</h2>
+        <p class="text-muted">Aquí tienes el historial de las motos que has reservado para probar.</p>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+    {% for reserva in reservas %}
+    <div class="col">
+        <div class="card h-100 shadow border-warning">
+            <div class="card-header bg-warning text-dark fw-bold text-center">
+                Fecha: {{ reserva.fecha.strftime('%d/%m/%Y') }}
+            </div>
+            <img src="{{ reserva.moto.imagen }}" class="card-img-top" style="height: 180px; object-fit: cover;">
+            <div class="card-body text-center">
+                <h5 class="card-title fw-bold">{{ reserva.moto.marca }} {{ reserva.moto.modelo }}</h5>
+                <hr>
+                <p class="card-text text-muted mb-0"><small>Te llamaremos al: {{ reserva.telefono }}</small></p>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center mt-5">
+        <div class="alert alert-light border shadow-sm py-5">
+            <h4 class="text-muted mb-3">Aún no has reservado ninguna prueba.</h4>
+            <a href="{{ url_for('index') }}" class="btn btn-primary">Ir al Garaje a buscar motos</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

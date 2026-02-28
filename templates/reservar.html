@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5 mb-5">
+    <div class="col-md-8">
+        <div class="card shadow border-0 overflow-hidden">
+            <div class="row g-0">
+                <div class="col-md-5">
+                    <img src="{{ moto.imagen }}" class="img-fluid rounded-start h-100" style="object-fit: cover;" alt="{{ moto.modelo }}">
+                </div>
+                
+                <div class="col-md-7">
+                    <div class="card-header bg-dark text-white">
+                        <h4 class="mb-0">Reservar Test Ride</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-4">Vas a probar la <strong>{{ moto.marca }} {{ moto.modelo }}</strong></h5>
+                        
+                        <form method="POST" action="{{ url_for('reservar', moto_id=moto.id) }}">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Fecha de la prueba</label>
+                                <input type="date" class="form-control" name="fecha" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Teléfono de contacto</label>
+                                <input type="tel" class="form-control" name="telefono" placeholder="Ej: 600 123 456" required>
+                                <div class="form-text">Te llamaremos para confirmar la hora exacta.</div>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-warning btn-lg fw-bold">Confirmar Reserva</button>
+                                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Cancelar</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
